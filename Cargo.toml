@@ -18,6 +18,7 @@ game-server = { git = "https://github.com/moritzbrantner/game-server.git", rev =
 physics-engine = { git = "https://github.com/moritzbrantner/physics-engine.git", rev = "c796ea382bdcb0276b9309e8a3cca34c8c28313b" }
 battle-royale-core = { path = "crates/battle-royale-core" }
 battle-royale-protocol = { path = "crates/battle-royale-protocol" }
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "signal", "sync"] }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
