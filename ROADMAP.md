@@ -14,10 +14,10 @@
 
 ## Runnable authoritative host
 
-- [ ] Add a Battle Royale host binary around `game-server::MatchHost`.
-- [ ] Expose health/readiness/status through the reusable host status contract.
-- [ ] Add graceful hosted recovery for a complete configured match set.
-- [ ] Keep operational status read-only and separate from gameplay mutation.
+- [x] Add a Battle Royale host binary around `game-server::MatchHost`.
+- [x] Expose health/readiness/status through the reusable host status contract.
+- [x] Add graceful hosted recovery for a complete configured match set.
+- [x] Keep operational status read-only and separate from gameplay mutation.
 - [ ] Add real WebTransport acceptance for two clients in one match and two isolated matches.
 
 ## Combat model
