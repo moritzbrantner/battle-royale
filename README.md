@@ -56,6 +56,10 @@ Set `BATTLE_ROYALE_RECOVERY_DIR` to a complete hosted recovery bundle to start t
 
 The pins intentionally match the already-proven MMORPG integration surface for the first slice. Upgrades should be explicit compatibility work, not floating dependency drift.
 
+## Deterministic scale evidence
+
+Ordinary validation includes a full-capacity 100-player workload. It proves that player 101 fails closed, two independent 512-tick simulations produce byte-identical canonical snapshots, and full-capacity canonical/player projections remain within explicit 8 KiB/4 KiB protocol budgets. These are deterministic state/byte contracts; no wall-clock threshold is used in correctness CI.
+
 ## Validation
 
 ```sh
