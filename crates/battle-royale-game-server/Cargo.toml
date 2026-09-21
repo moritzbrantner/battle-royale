@@ -10,6 +10,7 @@ publish.workspace = true
 battle-royale-core.workspace = true
 battle-royale-protocol.workspace = true
 game-server.workspace = true
+tokio.workspace = true
 
 [lints]
 workspace = true
