@@ -33,27 +33,16 @@ impl Error for ConfigError {}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let match_ids = parse_match_ids(&read_string(
-        "BATTLE_ROYALE_MATCH_IDS",
-        DEFAULT_MATCH_IDS,
-    )?)?;
+    let match_ids = parse_match_ids(&read_string("BATTLE_ROYALE_MATCH_IDS", DEFAULT_MATCH_IDS)?)?;
     let port = read_number("BATTLE_ROYALE_PORT", DEFAULT_PORT)?;
-    let status_port = read_number(
-        "BATTLE_ROYALE_STATUS_PORT",
-        DEFAULT_HOST_STATUS_PORT,
-    )?;
+    let status_port = read_number("BATTLE_ROYALE_STATUS_PORT", DEFAULT_HOST_STATUS_PORT)?;
     let reconnect_grace_ticks = read_number(
         "BATTLE_ROYALE_RECONNECT_GRACE_TICKS",
         DEFAULT_RECONNECT_GRACE_TICKS,
     )?;
-    let drain_grace_ms = read_number(
-        "BATTLE_ROYALE_DRAIN_GRACE_MS",
-        DEFAULT_DRAIN_GRACE_MS,
-    )?;
-    let certificate_pem =
-        PathBuf::from(read_string("BATTLE_ROYALE_CERT_PEM", "cert.pem")?);
-    let private_key_pem =
-        PathBuf::from(read_string("BATTLE_ROYALE_KEY_PEM", "key.pem")?);
+    let drain_grace_ms = read_number("BATTLE_ROYALE_DRAIN_GRACE_MS", DEFAULT_DRAIN_GRACE_MS)?;
+    let certificate_pem = PathBuf::from(read_string("BATTLE_ROYALE_CERT_PEM", "cert.pem")?);
+    let private_key_pem = PathBuf::from(read_string("BATTLE_ROYALE_KEY_PEM", "key.pem")?);
     let recovery_directory = read_optional_path("BATTLE_ROYALE_RECOVERY_DIR")?;
     let route_prefix = BrowserRoutePrefix::new(read_string(
         "BATTLE_ROYALE_ROUTE_PREFIX",
@@ -134,9 +123,7 @@ fn read_string(name: &str, default: &str) -> Result<String, ConfigError> {
 
 fn read_optional_path(name: &str) -> Result<Option<PathBuf>, ConfigError> {
     match env::var(name) {
-        Ok(value) if value.is_empty() => Err(ConfigError(format!(
-            "{name} must not be empty"
-        ))),
+        Ok(value) if value.is_empty() => Err(ConfigError(format!("{name} must not be empty"))),
         Ok(value) => Ok(Some(PathBuf::from(value))),
         Err(env::VarError::NotPresent) => Ok(None),
         Err(error) => Err(ConfigError(format!("{name} is invalid: {error}"))),
