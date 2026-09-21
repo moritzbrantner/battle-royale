@@ -16,7 +16,6 @@ jobs:
       bun_version: ""
       node_version: ""
       install_command: ""
-      pre_validate_command: cargo generate-lockfile && git diff -- Cargo.lock
       cache_bun: false
       cache_cargo: true
       format_command: cargo fmt --all -- --check
