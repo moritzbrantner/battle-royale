@@ -104,6 +104,7 @@ pub struct MatchSnapshot {
     pub tick: u64,
     pub phase: MatchPhase,
     pub phase_started_tick: u64,
+    pub combat_started_tick: Option<u64>,
     pub lobby_ready_tick: Option<u64>,
     pub storm: StormSnapshot,
     pub winner: Option<PlayerId>,
@@ -119,6 +120,7 @@ pub struct CanonicalMatchSnapshot {
     pub tick: u64,
     pub phase: MatchPhase,
     pub phase_started_tick: u64,
+    pub combat_started_tick: Option<u64>,
     pub lobby_ready_tick: Option<u64>,
     pub storm: StormSnapshot,
     pub winner: Option<PlayerId>,
@@ -171,6 +173,7 @@ pub struct BattleRoyaleMatch {
     tick: u64,
     phase: MatchPhase,
     phase_started_tick: u64,
+    combat_started_tick: Option<u64>,
     lobby_ready_tick: Option<u64>,
     world: World,
     players: BTreeMap<PlayerId, PlayerState>,
@@ -185,6 +188,7 @@ impl BattleRoyaleMatch {
             tick: 0,
             phase: MatchPhase::Waiting,
             phase_started_tick: 0,
+            combat_started_tick: None,
             lobby_ready_tick: None,
             world: World::new(WorldConfig {
                 gravity: Vec3i::ZERO,
@@ -368,6 +372,7 @@ impl BattleRoyaleMatch {
             tick: self.tick,
             phase: self.phase,
             phase_started_tick: self.phase_started_tick,
+            combat_started_tick: self.combat_started_tick,
             lobby_ready_tick: self.lobby_ready_tick,
             storm: self.storm_snapshot(),
             winner: self.winner,
@@ -408,6 +413,7 @@ impl BattleRoyaleMatch {
             tick: self.tick,
             phase: self.phase,
             phase_started_tick: self.phase_started_tick,
+            combat_started_tick: self.combat_started_tick,
             lobby_ready_tick: self.lobby_ready_tick,
             storm: self.storm_snapshot(),
             winner: self.winner,
@@ -427,7 +433,10 @@ impl BattleRoyaleMatch {
             };
         }
 
-        let elapsed = self.tick.saturating_sub(self.phase_started_tick);
+        let combat_started_tick = self
+            .combat_started_tick
+            .expect("combat and finished phases retain their combat start tick");
+        let elapsed = self.tick.saturating_sub(combat_started_tick);
         if elapsed <= STORM_DELAY_TICKS {
             return StormSnapshot {
                 center,
@@ -581,6 +590,9 @@ impl BattleRoyaleMatch {
     fn start_phase(&mut self, phase: MatchPhase) {
         self.phase = phase;
         self.phase_started_tick = self.tick;
+        if phase == MatchPhase::Combat {
+            self.combat_started_tick = Some(self.tick);
+        }
         if phase != MatchPhase::Waiting {
             self.lobby_ready_tick = None;
         }
@@ -759,6 +771,7 @@ mod tests {
         assert!(shrinking.radius < before.radius);
         assert!(after.radius <= shrinking.radius);
         assert!(after.radius >= FINAL_STORM_RADIUS_UNITS);
+        assert_eq!(after.center, shrinking.center);
         assert_eq!(
             BattleRoyaleMatch::storm_center(BattleMatchId::new(11)),
             BattleRoyaleMatch::storm_center(BattleMatchId::new(11))
