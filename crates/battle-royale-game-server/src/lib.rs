@@ -1,11 +1,7 @@
 #![forbid(unsafe_code)]
 
-use battle_royale_core::{
-    BattleMatchId, BattleRoyaleMatch, MAX_PLAYERS_PER_MATCH, TICK_HZ,
-};
-use battle_royale_protocol::{
-    decode_command, encode_canonical_snapshot, encode_snapshot,
-};
+use battle_royale_core::{BattleMatchId, BattleRoyaleMatch, MAX_PLAYERS_PER_MATCH, TICK_HZ};
+use battle_royale_protocol::{decode_command, encode_canonical_snapshot, encode_snapshot};
 use game_server::{
     GameSimulation, HostError, MatchHost, MatchId, MatchIdError, MatchRuntime, SimulationError,
     SimulationSnapshot, SnapshotScope,
@@ -27,7 +23,11 @@ impl std::fmt::Display for MatchHostBuildError {
         match self {
             Self::Empty => formatter.write_str("match host must contain at least one match"),
             Self::DuplicateMatch(match_id) => {
-                write!(formatter, "match {} is configured more than once", match_id.get())
+                write!(
+                    formatter,
+                    "match {} is configured more than once",
+                    match_id.get()
+                )
             }
             Self::MatchId(error) => error.fmt(formatter),
             Self::Host(error) => error.fmt(formatter),
@@ -125,7 +125,9 @@ impl GameSimulation for BattleRoyaleGameServerAdapter {
     }
 
     fn add_player(&mut self, player_id: game_server::PlayerId) -> Result<(), SimulationError> {
-        self.simulation.add_player(player_id).map_err(map_match_error)
+        self.simulation
+            .add_player(player_id)
+            .map_err(map_match_error)
     }
 
     fn remove_player(&mut self, player_id: game_server::PlayerId) -> bool {
@@ -189,9 +191,7 @@ mod tests {
     use battle_royale_core::{
         DROP_DURATION_TICKS, LOBBY_COUNTDOWN_TICKS, MatchCommand, MatchPhase,
     };
-    use battle_royale_protocol::{
-        decode_canonical_snapshot, decode_snapshot, encode_command,
-    };
+    use battle_royale_protocol::{decode_canonical_snapshot, decode_snapshot, encode_command};
     use game_server::{RECONNECT_TOKEN_BYTES, ReconnectToken};
 
     fn token(value: u8) -> ReconnectToken {
@@ -214,8 +214,7 @@ mod tests {
         let payload = encode_command(MatchCommand::SetMovement { x: 1, z: 0 });
         adapter.apply_command(1, 9, &payload).unwrap();
 
-        let canonical =
-            decode_canonical_snapshot(&adapter.snapshot().unwrap().payload).unwrap();
+        let canonical = decode_canonical_snapshot(&adapter.snapshot().unwrap().payload).unwrap();
         let visible = decode_snapshot(&adapter.snapshot_for(1).unwrap().payload).unwrap();
 
         assert_eq!(adapter.snapshot_scope(), SnapshotScope::PlayerScoped);
@@ -230,19 +229,16 @@ mod tests {
         let match_id = BattleMatchId::new(9);
         let old_token = token(7);
         let replacement_token = token(8);
-        let mut runtime =
-            MatchRuntime::new_with_replay_capture(BattleRoyaleGameServerAdapter::new(match_id), 300);
+        let mut runtime = MatchRuntime::new_with_replay_capture(
+            BattleRoyaleGameServerAdapter::new(match_id),
+            300,
+        );
         let first = runtime.admit(old_token).unwrap();
         runtime.admit(token(2)).unwrap();
 
         let payload = encode_command(MatchCommand::SetMovement { x: 1, z: 0 });
         runtime
-            .submit_command(
-                first.player_id,
-                first.connection_epoch,
-                5,
-                &payload,
-            )
+            .submit_command(first.player_id, first.connection_epoch, 5, &payload)
             .unwrap();
 
         for _ in 0..(LOBBY_COUNTDOWN_TICKS + DROP_DURATION_TICKS + 5) {
@@ -258,8 +254,7 @@ mod tests {
         )
         .unwrap();
 
-        let canonical =
-            decode_canonical_snapshot(&restored.snapshot().unwrap().payload).unwrap();
+        let canonical = decode_canonical_snapshot(&restored.snapshot().unwrap().payload).unwrap();
         let reconnected = restored.reconnect(old_token, replacement_token).unwrap();
 
         assert_eq!(canonical.phase, MatchPhase::Combat);
@@ -276,11 +271,7 @@ mod tests {
             Err(MatchHostBuildError::Empty)
         ));
         assert_eq!(
-            build_match_host(
-                [BattleMatchId::new(4), BattleMatchId::new(4)],
-                120
-            )
-            .err(),
+            build_match_host([BattleMatchId::new(4), BattleMatchId::new(4)], 120).err(),
             Some(MatchHostBuildError::DuplicateMatch(BattleMatchId::new(4)))
         );
 
