@@ -31,8 +31,22 @@ The repository composes those foundations; it should not grow substitutes for th
 - a thin `game-server::GameSimulation` adapter;
 - deterministic mapping from Battle Royale match IDs to route-safe `game-server::MatchId` values;
 - bounded multi-match host construction without duplicating host/session policy;
+- a runnable WebTransport multi-match host with read-only health/readiness/status, signal-driven draining and optional recovery bundles;
 - recovery tests that restore match state and reconnect identity through `game-server`;
 - exact dependency pins, committed lockfile and fail-closed workspace validation.
+
+## Running the authoritative host
+
+The host defaults to one match on UDP port 4433 and read-only operational status on port 8080. TLS material is explicit; gameplay mutation is not exposed through the status/control surface.
+
+```sh
+BATTLE_ROYALE_CERT_PEM=cert.pem \
+BATTLE_ROYALE_KEY_PEM=key.pem \
+BATTLE_ROYALE_MATCH_IDS=1,2,3 \
+cargo run --locked -p battle-royale-game-server --bin battle-royale-host
+```
+
+Set `BATTLE_ROYALE_RECOVERY_DIR` to a complete hosted recovery bundle to start through the reusable `game-server` recovery path. Other knobs are `BATTLE_ROYALE_PORT`, `BATTLE_ROYALE_STATUS_PORT`, `BATTLE_ROYALE_RECONNECT_GRACE_TICKS`, `BATTLE_ROYALE_DRAIN_GRACE_MS` and `BATTLE_ROYALE_ROUTE_PREFIX`.
 
 ## Pinned foundations
 
