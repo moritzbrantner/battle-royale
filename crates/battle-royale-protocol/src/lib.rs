@@ -1,8 +1,8 @@
 #![forbid(unsafe_code)]
 
 use battle_royale_core::{
-    BattleMatchId, CanonicalMatchSnapshot, CanonicalPlayerSnapshot, EliminationCause, MatchCommand,
-    MatchPhase, MatchSnapshot, PlayerSnapshot, StormSnapshot, MAX_PLAYERS_PER_MATCH,
+    BattleMatchId, CanonicalMatchSnapshot, CanonicalPlayerSnapshot, EliminationCause,
+    MAX_PLAYERS_PER_MATCH, MatchCommand, MatchPhase, MatchSnapshot, PlayerSnapshot, StormSnapshot,
 };
 use std::error::Error;
 use std::fmt;
@@ -256,7 +256,9 @@ fn write_canonical_player(bytes: &mut Vec<u8>, player: &CanonicalPlayerSnapshot)
     bytes.push(encode_cause(player.elimination_cause));
 }
 
-fn read_canonical_player(cursor: &mut Cursor<'_>) -> Result<CanonicalPlayerSnapshot, ProtocolError> {
+fn read_canonical_player(
+    cursor: &mut Cursor<'_>,
+) -> Result<CanonicalPlayerSnapshot, ProtocolError> {
     Ok(CanonicalPlayerSnapshot {
         player_id: cursor.read_u32()?,
         position: cursor.read_vec3()?,
@@ -296,7 +298,9 @@ fn read_player(cursor: &mut Cursor<'_>) -> Result<PlayerSnapshot, ProtocolError>
 
 fn validate_player_count(count: usize) -> Result<(), ProtocolError> {
     if count > MAX_PLAYERS_PER_MATCH {
-        return Err(ProtocolError::new("snapshot player count exceeds match capacity"));
+        return Err(ProtocolError::new(
+            "snapshot player count exceeds match capacity",
+        ));
     }
     Ok(())
 }
@@ -474,9 +478,7 @@ impl<'a> Cursor<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use battle_royale_core::{
-        BattleRoyaleMatch, LOBBY_COUNTDOWN_TICKS, MatchCommand, MatchPhase,
-    };
+    use battle_royale_core::{BattleRoyaleMatch, LOBBY_COUNTDOWN_TICKS, MatchCommand, MatchPhase};
 
     #[test]
     fn command_roundtrip_is_exact_and_rejects_trailing_bytes() {
@@ -514,7 +516,10 @@ mod tests {
             decode_canonical_snapshot(&encode_canonical_snapshot(&canonical)).unwrap(),
             canonical
         );
-        assert_eq!(decode_snapshot(&encode_snapshot(&visible)).unwrap(), visible);
+        assert_eq!(
+            decode_snapshot(&encode_snapshot(&visible)).unwrap(),
+            visible
+        );
     }
 
     #[test]
