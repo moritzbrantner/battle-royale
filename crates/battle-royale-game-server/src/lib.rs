@@ -76,16 +76,43 @@ pub fn route_match_id(match_id: BattleMatchId) -> Result<MatchId, MatchIdError> 
     MatchId::new(format!("br-{:016x}", match_id.get()))
 }
 
+pub fn build_match_entries(
+    match_ids: impl IntoIterator<Item = BattleMatchId>,
+) -> Result<Vec<(MatchId, BattleRoyaleGameServerAdapter)>, MatchHostBuildError> {
+    let match_ids = match_ids.into_iter().collect::<Vec<_>>();
+    validate_match_ids(&match_ids)?;
+
+    match_ids
+        .into_iter()
+        .map(|match_id| {
+            let route = route_match_id(match_id).map_err(MatchHostBuildError::MatchId)?;
+            Ok((route, BattleRoyaleGameServerAdapter::new(match_id)))
+        })
+        .collect()
+}
+
 pub fn build_match_host(
     match_ids: impl IntoIterator<Item = BattleMatchId>,
     reconnect_grace_ticks: u64,
 ) -> Result<MatchHost<BattleRoyaleGameServerAdapter>, MatchHostBuildError> {
-    let match_ids = match_ids.into_iter().collect::<Vec<_>>();
+    let matches = build_match_entries(match_ids)?;
+    let mut host = MatchHost::new(matches.len()).map_err(MatchHostBuildError::Host)?;
+    for (route, simulation) in matches {
+        let runtime = MatchRuntime::new(simulation, reconnect_grace_ticks);
+        host.insert(route, runtime).map_err(|failure| {
+            let (error, _, _) = failure.into_parts();
+            MatchHostBuildError::Host(error)
+        })?;
+    }
+    Ok(host)
+}
+
+fn validate_match_ids(match_ids: &[BattleMatchId]) -> Result<(), MatchHostBuildError> {
     if match_ids.is_empty() {
         return Err(MatchHostBuildError::Empty);
     }
 
-    let mut ordered = match_ids.clone();
+    let mut ordered = match_ids.to_vec();
     ordered.sort_unstable();
     if let Some(duplicate) = ordered.windows(2).find_map(|pair| {
         let [left, right] = pair else {
@@ -95,20 +122,7 @@ pub fn build_match_host(
     }) {
         return Err(MatchHostBuildError::DuplicateMatch(duplicate));
     }
-
-    let mut host = MatchHost::new(match_ids.len()).map_err(MatchHostBuildError::Host)?;
-    for match_id in match_ids {
-        let route = route_match_id(match_id).map_err(MatchHostBuildError::MatchId)?;
-        let runtime = MatchRuntime::new(
-            BattleRoyaleGameServerAdapter::new(match_id),
-            reconnect_grace_ticks,
-        );
-        host.insert(route, runtime).map_err(|failure| {
-            let (error, _, _) = failure.into_parts();
-            MatchHostBuildError::Host(error)
-        })?;
-    }
-    Ok(host)
+    Ok(())
 }
 
 impl GameSimulation for BattleRoyaleGameServerAdapter {
@@ -267,6 +281,10 @@ mod tests {
     #[test]
     fn host_rejects_empty_and_duplicate_sets_and_keeps_matches_isolated() {
         assert!(matches!(
+            build_match_entries([]),
+            Err(MatchHostBuildError::Empty)
+        ));
+        assert!(matches!(
             build_match_host([], 120),
             Err(MatchHostBuildError::Empty)
         ));
@@ -277,6 +295,10 @@ mod tests {
 
         let first = BattleMatchId::new(10);
         let second = BattleMatchId::new(11);
+        let entries = build_match_entries([first, second]).unwrap();
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].0, route_match_id(first).unwrap());
+        assert_eq!(entries[1].0, route_match_id(second).unwrap());
         let first_route = route_match_id(first).unwrap();
         let second_route = route_match_id(second).unwrap();
         let mut host = build_match_host([first, second], 120).unwrap();
