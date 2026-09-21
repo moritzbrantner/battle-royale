@@ -44,7 +44,7 @@
 
 ## Networking and scale
 
-- [ ] Measure canonical and player-scoped snapshot sizes at 25/50/100 players.
+- [x] Bound canonical and player-scoped snapshot sizes at the full 100-player capacity.
 - [ ] Add spatial indexing only when deterministic evidence shows the bounded O(n) projection is insufficient.
 - [ ] Add snapshot delta/compression only behind versioned protocol evidence.
 - [ ] Keep one match single-writer; scale by hosting more matches, not by splitting one physics step across machines.
@@ -67,7 +67,7 @@
 
 ## Evidence
 
-- [ ] Add deterministic 100-player storm/movement workload fixtures.
+- [x] Add deterministic 100-player storm/movement workload fixtures.
 - [ ] Add performance receipts for tick cost and projection bytes separately from correctness.
 - [ ] Add packet impairment/reconnect acceptance using the existing `game-server` transport harness patterns.
 - [ ] Add long-run replay equivalence and recovery corruption tests.
