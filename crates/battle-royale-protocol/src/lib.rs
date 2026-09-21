@@ -108,6 +108,7 @@ pub fn decode_canonical_snapshot(payload: &[u8]) -> Result<CanonicalMatchSnapsho
         tick: header.tick,
         phase: header.phase,
         phase_started_tick: header.phase_started_tick,
+        combat_started_tick: header.combat_started_tick,
         lobby_ready_tick: header.lobby_ready_tick,
         storm: header.storm,
         winner: header.winner,
@@ -150,6 +151,7 @@ pub fn decode_snapshot(payload: &[u8]) -> Result<MatchSnapshot, ProtocolError> {
         tick: header.tick,
         phase: header.phase,
         phase_started_tick: header.phase_started_tick,
+        combat_started_tick: header.combat_started_tick,
         lobby_ready_tick: header.lobby_ready_tick,
         storm: header.storm,
         winner: header.winner,
@@ -166,6 +168,7 @@ struct CommonHeader {
     tick: u64,
     phase: MatchPhase,
     phase_started_tick: u64,
+    combat_started_tick: Option<u64>,
     lobby_ready_tick: Option<u64>,
     storm: StormSnapshot,
     winner: Option<u32>,
@@ -180,6 +183,7 @@ impl From<&CanonicalMatchSnapshot> for CommonHeader {
             tick: snapshot.tick,
             phase: snapshot.phase,
             phase_started_tick: snapshot.phase_started_tick,
+            combat_started_tick: snapshot.combat_started_tick,
             lobby_ready_tick: snapshot.lobby_ready_tick,
             storm: snapshot.storm,
             winner: snapshot.winner,
@@ -196,6 +200,7 @@ impl From<&MatchSnapshot> for CommonHeader {
             tick: snapshot.tick,
             phase: snapshot.phase,
             phase_started_tick: snapshot.phase_started_tick,
+            combat_started_tick: snapshot.combat_started_tick,
             lobby_ready_tick: snapshot.lobby_ready_tick,
             storm: snapshot.storm,
             winner: snapshot.winner,
@@ -211,6 +216,7 @@ fn write_common_header(bytes: &mut Vec<u8>, header: CommonHeader) {
     write_u64(bytes, header.tick);
     bytes.push(encode_phase(header.phase));
     write_u64(bytes, header.phase_started_tick);
+    write_option_u64(bytes, header.combat_started_tick);
     write_option_u64(bytes, header.lobby_ready_tick);
     write_i32(bytes, header.storm.center[0]);
     write_i32(bytes, header.storm.center[1]);
@@ -231,6 +237,7 @@ fn read_common_header(cursor: &mut Cursor<'_>) -> Result<CommonHeader, ProtocolE
         tick: cursor.read_u64()?,
         phase: decode_phase(cursor.read_u8()?)?,
         phase_started_tick: cursor.read_u64()?,
+        combat_started_tick: cursor.read_option_u64()?,
         lobby_ready_tick: cursor.read_option_u64()?,
         storm: StormSnapshot {
             center: [cursor.read_i32()?, cursor.read_i32()?],
