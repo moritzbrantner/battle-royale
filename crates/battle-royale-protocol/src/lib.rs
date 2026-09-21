@@ -79,18 +79,7 @@ pub fn decode_command(payload: &[u8]) -> Result<MatchCommand, ProtocolError> {
 pub fn encode_canonical_snapshot(snapshot: &CanonicalMatchSnapshot) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(128 + snapshot.players.len() * 64);
     bytes.extend_from_slice(&CANONICAL_MAGIC);
-    write_common_header(
-        &mut bytes,
-        snapshot.schema_version,
-        snapshot.ruleset_revision,
-        snapshot.match_id,
-        snapshot.tick,
-        snapshot.phase,
-        snapshot.phase_started_tick,
-        snapshot.lobby_ready_tick,
-        snapshot.storm,
-        snapshot.winner,
-    );
+    write_common_header(&mut bytes, CommonHeader::from(snapshot));
     write_u16(
         &mut bytes,
         u16::try_from(snapshot.players.len()).unwrap_or(u16::MAX),
@@ -130,18 +119,7 @@ pub fn decode_canonical_snapshot(payload: &[u8]) -> Result<CanonicalMatchSnapsho
 pub fn encode_snapshot(snapshot: &MatchSnapshot) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(128 + snapshot.players.len() * 48);
     bytes.extend_from_slice(&PLAYER_MAGIC);
-    write_common_header(
-        &mut bytes,
-        snapshot.schema_version,
-        snapshot.ruleset_revision,
-        snapshot.match_id,
-        snapshot.tick,
-        snapshot.phase,
-        snapshot.phase_started_tick,
-        snapshot.lobby_ready_tick,
-        snapshot.storm,
-        snapshot.winner,
-    );
+    write_common_header(&mut bytes, CommonHeader::from(snapshot));
     write_u32(&mut bytes, snapshot.acknowledged_sequence);
     write_u16(
         &mut bytes,
@@ -193,31 +171,52 @@ struct CommonHeader {
     winner: Option<u32>,
 }
 
-fn write_common_header(
-    bytes: &mut Vec<u8>,
-    schema_version: u16,
-    ruleset_revision: u64,
-    match_id: BattleMatchId,
-    tick: u64,
-    phase: MatchPhase,
-    phase_started_tick: u64,
-    lobby_ready_tick: Option<u64>,
-    storm: StormSnapshot,
-    winner: Option<u32>,
-) {
+impl From<&CanonicalMatchSnapshot> for CommonHeader {
+    fn from(snapshot: &CanonicalMatchSnapshot) -> Self {
+        Self {
+            schema_version: snapshot.schema_version,
+            ruleset_revision: snapshot.ruleset_revision,
+            match_id: snapshot.match_id,
+            tick: snapshot.tick,
+            phase: snapshot.phase,
+            phase_started_tick: snapshot.phase_started_tick,
+            lobby_ready_tick: snapshot.lobby_ready_tick,
+            storm: snapshot.storm,
+            winner: snapshot.winner,
+        }
+    }
+}
+
+impl From<&MatchSnapshot> for CommonHeader {
+    fn from(snapshot: &MatchSnapshot) -> Self {
+        Self {
+            schema_version: snapshot.schema_version,
+            ruleset_revision: snapshot.ruleset_revision,
+            match_id: snapshot.match_id,
+            tick: snapshot.tick,
+            phase: snapshot.phase,
+            phase_started_tick: snapshot.phase_started_tick,
+            lobby_ready_tick: snapshot.lobby_ready_tick,
+            storm: snapshot.storm,
+            winner: snapshot.winner,
+        }
+    }
+}
+
+fn write_common_header(bytes: &mut Vec<u8>, header: CommonHeader) {
     write_u16(bytes, PROTOCOL_VERSION);
-    write_u16(bytes, schema_version);
-    write_u64(bytes, ruleset_revision);
-    write_u64(bytes, match_id.get());
-    write_u64(bytes, tick);
-    bytes.push(encode_phase(phase));
-    write_u64(bytes, phase_started_tick);
-    write_option_u64(bytes, lobby_ready_tick);
-    write_i32(bytes, storm.center[0]);
-    write_i32(bytes, storm.center[1]);
-    write_i32(bytes, storm.radius);
-    bytes.push(u8::from(storm.damage_active));
-    write_option_u32(bytes, winner);
+    write_u16(bytes, header.schema_version);
+    write_u64(bytes, header.ruleset_revision);
+    write_u64(bytes, header.match_id.get());
+    write_u64(bytes, header.tick);
+    bytes.push(encode_phase(header.phase));
+    write_u64(bytes, header.phase_started_tick);
+    write_option_u64(bytes, header.lobby_ready_tick);
+    write_i32(bytes, header.storm.center[0]);
+    write_i32(bytes, header.storm.center[1]);
+    write_i32(bytes, header.storm.radius);
+    bytes.push(u8::from(header.storm.damage_active));
+    write_option_u32(bytes, header.winner);
 }
 
 fn read_common_header(cursor: &mut Cursor<'_>) -> Result<CommonHeader, ProtocolError> {
