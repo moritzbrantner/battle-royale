@@ -67,6 +67,7 @@ dependencies = [
  "battle-royale-core",
  "battle-royale-protocol",
  "game-server",
+ "tokio",
 ]
 
 [[package]]
