@@ -338,11 +338,9 @@ impl BattleRoyaleMatch {
         match self.phase {
             MatchPhase::Waiting => {
                 self.refresh_lobby_ready_tick();
-                let countdown_complete = self
-                    .lobby_ready_tick
-                    .is_some_and(|ready_tick| {
-                        self.tick.saturating_sub(ready_tick) >= LOBBY_COUNTDOWN_TICKS
-                    });
+                let countdown_complete = self.lobby_ready_tick.is_some_and(|ready_tick| {
+                    self.tick.saturating_sub(ready_tick) >= LOBBY_COUNTDOWN_TICKS
+                });
                 if self.players.len() == MAX_PLAYERS_PER_MATCH || countdown_complete {
                     self.start_phase(MatchPhase::Drop);
                 }
@@ -442,8 +440,7 @@ impl BattleRoyaleMatch {
             .saturating_sub(STORM_DELAY_TICKS)
             .min(STORM_SHRINK_DURATION_TICKS);
         let radius_delta = i64::from(INITIAL_STORM_RADIUS_UNITS - FINAL_STORM_RADIUS_UNITS);
-        let shrink = radius_delta
-            .saturating_mul(i64::try_from(shrink_elapsed).unwrap_or(i64::MAX))
+        let shrink = radius_delta.saturating_mul(i64::try_from(shrink_elapsed).unwrap_or(i64::MAX))
             / i64::try_from(STORM_SHRINK_DURATION_TICKS).unwrap_or(1);
         let radius = i64::from(INITIAL_STORM_RADIUS_UNITS).saturating_sub(shrink);
 
@@ -479,11 +476,7 @@ impl BattleRoyaleMatch {
                     .world
                     .body(Self::body_id(player_id))
                     .ok_or_else(|| MatchError::new("player physics body is missing"))?;
-                Ok((
-                    player_id,
-                    body.position(),
-                    body.velocity(),
-                ))
+                Ok((player_id, body.position(), body.velocity()))
             })
             .collect::<Result<Vec<_>, MatchError>>()?;
 
@@ -594,8 +587,11 @@ impl BattleRoyaleMatch {
     }
 
     fn available_spawn_slot(&self) -> Option<u16> {
-        (0..u16::try_from(MAX_PLAYERS_PER_MATCH).ok()?)
-            .find(|slot| self.players.values().all(|player| player.spawn_slot != *slot))
+        (0..u16::try_from(MAX_PLAYERS_PER_MATCH).ok()?).find(|slot| {
+            self.players
+                .values()
+                .all(|player| player.spawn_slot != *slot)
+        })
     }
 
     fn spawn_position(slot: u16) -> [i32; 3] {
