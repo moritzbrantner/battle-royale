@@ -1,8 +1,6 @@
 use battle_royale_core::{BattleMatchId, MAX_PLAYERS_PER_MATCH, MatchCommand};
 use battle_royale_game_server::BattleRoyaleGameServerAdapter;
-use battle_royale_protocol::{
-    decode_canonical_snapshot, decode_snapshot, encode_command,
-};
+use battle_royale_protocol::{decode_canonical_snapshot, decode_snapshot, encode_command};
 use game_server::GameSimulation;
 
 const CANONICAL_SNAPSHOT_BUDGET_BYTES: usize = 8 * 1024;
