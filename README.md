@@ -53,6 +53,7 @@ Set `BATTLE_ROYALE_RECOVERY_DIR` to a complete hosted recovery bundle to start t
 - `game-server`: `769de47005cc37891011fc76ae183c18b7c5e0ae`
 - `physics-engine`: `c796ea382bdcb0276b9309e8a3cca34c8c28313b`
 - reusable validation workflow: `728fffa13c451766d08f06e6c7d7950a4de57b3d`
+- Performance Evidence contract: `a1b21d34f04e5b3b2324f6c0300459e70380edd2`
 
 The pins intentionally match the already-proven MMORPG integration surface for the first slice. Upgrades should be explicit compatibility work, not floating dependency drift.
 
