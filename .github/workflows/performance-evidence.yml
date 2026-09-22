@@ -31,7 +31,7 @@ jobs:
         python3 -m pip install -r "$RUNNER_TEMP/performance-evidence/requirements-dev.txt"
       benchmark_command: |
         python3 benchmarks/run.py --output-dir performance-results
-        python3 benchmarks/validate.py "$RUNNER_TEMP/performance-evidence"           performance-results/tick-cost.json           performance-results/projection-bytes.json
+        python3 benchmarks/validate.py "$RUNNER_TEMP/performance-evidence" performance-results/tick-cost.json performance-results/projection-bytes.json
       artifact_paths: performance-results
       summary_paths: performance-results/summary.md
       upload_artifacts_on: always
