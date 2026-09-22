@@ -224,7 +224,7 @@ def main() -> int:
     tick_document = evidence(
         scenario(
             "battle-royale/full-capacity-tick",
-            "Release-mode authoritative tick cost for a deterministic 100-player movement workload.",
+            "Release-mode authoritative combat tick cost for a deterministic 100-player movement workload with active storm evaluation.",
             "full-capacity-movement-v1",
             tick_parameters,
         ),
