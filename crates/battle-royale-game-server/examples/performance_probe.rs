@@ -92,8 +92,12 @@ fn main() {
     let tick_batch_ns = (0..MEASURED_BATCHES)
         .map(|_| tick_batch_ns())
         .collect::<Vec<_>>();
-    let (canonical_bytes, player_projection_bytes_total, player_projection_bytes_max, player_projection_bytes_min) =
-        projection_sizes();
+    let (
+        canonical_bytes,
+        player_projection_bytes_total,
+        player_projection_bytes_max,
+        player_projection_bytes_min,
+    ) = projection_sizes();
 
     let samples = tick_batch_ns
         .iter()
