@@ -66,8 +66,14 @@ fn tick_batch_ns() -> u128 {
         simulation.advance_tick().unwrap();
     }
 
+    let elapsed = started.elapsed().as_nanos();
+
+    assert_eq!(simulation.simulation().phase(), MatchPhase::Combat);
+    assert_eq!(simulation.simulation().alive_count(), MAX_PLAYERS_PER_MATCH);
+    assert!(simulation.simulation().storm_snapshot().damage_active);
+
     black_box(simulation.current_tick());
-    started.elapsed().as_nanos()
+    elapsed
 }
 
 fn projection_sizes() -> (usize, usize, usize, usize) {
@@ -116,7 +122,7 @@ fn main() {
 
     println!(
         concat!(
-            "{{",
+            "{",
             "\"schema_version\":1,",
             "\"players\":{},",
             "\"match_id\":{},",
@@ -129,7 +135,7 @@ fn main() {
             "\"player_projection_bytes_total\":{},",
             "\"player_projection_bytes_max\":{},",
             "\"player_projection_bytes_min\":{}",
-            "}}"
+            "}"
         ),
         MAX_PLAYERS_PER_MATCH,
         MATCH_ID,
