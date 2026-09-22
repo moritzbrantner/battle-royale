@@ -122,7 +122,7 @@ fn main() {
 
     println!(
         concat!(
-            "{",
+            "{{",
             "\"schema_version\":1,",
             "\"players\":{},",
             "\"match_id\":{},",
@@ -135,7 +135,7 @@ fn main() {
             "\"player_projection_bytes_total\":{},",
             "\"player_projection_bytes_max\":{},",
             "\"player_projection_bytes_min\":{}",
-            "}"
+            "}}"
         ),
         MAX_PLAYERS_PER_MATCH,
         MATCH_ID,
