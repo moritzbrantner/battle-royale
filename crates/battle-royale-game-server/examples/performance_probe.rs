@@ -1,9 +1,7 @@
 use std::hint::black_box;
 use std::time::Instant;
 
-use battle_royale_core::{
-    BattleMatchId, MAX_PLAYERS_PER_MATCH, MatchCommand, MatchPhase,
-};
+use battle_royale_core::{BattleMatchId, MAX_PLAYERS_PER_MATCH, MatchCommand, MatchPhase};
 use battle_royale_game_server::BattleRoyaleGameServerAdapter;
 use battle_royale_protocol::encode_command;
 use game_server::GameSimulation;
