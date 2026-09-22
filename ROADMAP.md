@@ -68,6 +68,6 @@
 ## Evidence
 
 - [x] Add deterministic 100-player storm/movement workload fixtures.
-- [ ] Add performance receipts for tick cost and projection bytes separately from correctness.
+- [x] Add performance receipts for tick cost and projection bytes separately from correctness.
 - [ ] Add packet impairment/reconnect acceptance using the existing `game-server` transport harness patterns.
 - [ ] Add long-run replay equivalence and recovery corruption tests.

@@ -11,7 +11,8 @@
       "format:check": ["cargo", "fmt", "--all", "--", "--check"],
       "lint": ["cargo", "clippy", "--workspace", "--all-targets", "--all-features", "--locked", "--", "-D", "warnings"],
       "build": ["cargo", "build", "--workspace", "--all-features", "--locked"],
-      "test:unit": ["cargo", "test", "--workspace", "--all-features", "--locked"]
+      "test:unit": ["cargo", "test", "--workspace", "--all-features", "--locked"],
+      "benchmark:full-capacity": ["python3", "benchmarks/run.py", "--output-dir", "performance-results"]
     }
   }
 }

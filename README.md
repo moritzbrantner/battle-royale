@@ -53,12 +53,23 @@ Set `BATTLE_ROYALE_RECOVERY_DIR` to a complete hosted recovery bundle to start t
 - `game-server`: `769de47005cc37891011fc76ae183c18b7c5e0ae`
 - `physics-engine`: `c796ea382bdcb0276b9309e8a3cca34c8c28313b`
 - reusable validation workflow: `728fffa13c451766d08f06e6c7d7950a4de57b3d`
+- Performance Evidence contract: `a1b21d34f04e5b3b2324f6c0300459e70380edd2`
 
 The pins intentionally match the already-proven MMORPG integration surface for the first slice. Upgrades should be explicit compatibility work, not floating dependency drift.
 
 ## Deterministic scale evidence
 
 Ordinary validation includes a full-capacity 100-player workload. It proves that player 101 fails closed, two independent 512-tick simulations produce byte-identical canonical snapshots, and full-capacity canonical/player projections remain within explicit 8 KiB/4 KiB protocol budgets. These are deterministic state/byte contracts; no wall-clock threshold is used in correctness CI.
+
+## Performance evidence
+
+The opt-in full-capacity benchmark records release-mode authoritative tick cost separately from deterministic projection bytes and emits canonical Performance Evidence 1.0.0 documents.
+
+```sh
+python3 benchmarks/run.py --output-dir performance-results
+```
+
+`benchmark:full-capacity` is exposed through `.coding-tooling.json` but is intentionally absent from the fast/full correctness tiers. Hosted performance evidence runs on `main` and by manual dispatch, validates its artifacts against an exact pinned `performance-evidence` revision, and preserves the receipts as workflow artifacts. Wall-clock measurements are advisory rather than a correctness threshold. See [the benchmark contract](benchmarks/README.md).
 
 ## Validation
 
