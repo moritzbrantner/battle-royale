@@ -11,7 +11,7 @@ Run it locally with:
 python3 benchmarks/run.py --output-dir performance-results
 ```
 
-The runner builds and executes the real `BattleRoyaleGameServerAdapter` in release mode. Each timing batch starts from a fresh deterministic 100-player match, advances eight setup ticks outside measurement, then measures 32 authoritative ticks. Five batches warm the machine and 31 batches are retained. Projection sizes are captured separately from timing by encoding one canonical snapshot and one player-scoped snapshot for every recipient.
+The runner builds and executes the real `BattleRoyaleGameServerAdapter` in release mode. Each timing batch starts from a fresh deterministic 100-player match, advances 192 setup ticks outside measurement, and fails closed unless all 100 players are alive in `Combat` with active storm evaluation. It then measures 32 authoritative ticks. Five batches warm the machine and 31 batches are retained. Projection sizes are captured separately from timing by encoding one canonical snapshot and one player-scoped snapshot for every recipient from the same prepared combat state.
 
 The output consists of `tick-cost.json`, `projection-bytes.json`, and `summary.md`. The JSON documents implement the canonical Performance Evidence 1.0.0 contract. Hosted evidence validates them against the exact Performance Evidence revision pinned in `.github/workflows/performance-evidence.yml`.
 
