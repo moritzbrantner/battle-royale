@@ -1,13 +1,15 @@
 use std::hint::black_box;
 use std::time::Instant;
 
-use battle_royale_core::{BattleMatchId, MAX_PLAYERS_PER_MATCH, MatchCommand};
+use battle_royale_core::{
+    BattleMatchId, MAX_PLAYERS_PER_MATCH, MatchCommand, MatchPhase,
+};
 use battle_royale_game_server::BattleRoyaleGameServerAdapter;
 use battle_royale_protocol::encode_command;
 use game_server::GameSimulation;
 
 const MATCH_ID: u64 = 0x400;
-const PRE_MEASURE_TICKS: usize = 8;
+const PRE_MEASURE_TICKS: usize = 192;
 const TICKS_PER_BATCH: usize = 32;
 const WARMUP_BATCHES: usize = 5;
 const MEASURED_BATCHES: usize = 31;
@@ -46,6 +48,15 @@ fn prepared_match() -> BattleRoyaleGameServerAdapter {
     for _ in 0..PRE_MEASURE_TICKS {
         simulation.advance_tick().unwrap();
     }
+
+    assert_eq!(
+        simulation.simulation().player_count(),
+        MAX_PLAYERS_PER_MATCH
+    );
+    assert_eq!(simulation.simulation().alive_count(), MAX_PLAYERS_PER_MATCH);
+    assert_eq!(simulation.simulation().phase(), MatchPhase::Combat);
+    assert!(simulation.simulation().storm_snapshot().damage_active);
+
     simulation
 }
 
