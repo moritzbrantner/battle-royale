@@ -1,0 +1,39 @@
+name: Performance Evidence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "rust-toolchain.toml"
+      - "crates/**"
+      - "benchmarks/**"
+      - ".github/workflows/performance-evidence.yml"
+
+jobs:
+  full-capacity:
+    permissions:
+      contents: read
+      packages: read
+    uses: moritzbrantner/reusable-workflows/.github/workflows/performance-validation.yml@728fffa13c451766d08f06e6c7d7950a4de57b3d
+    with:
+      bun_version: ""
+      node_version: ""
+      install_command: ""
+      cache_bun: false
+      cache_cargo: true
+      pre_command: |
+        git clone https://github.com/moritzbrantner/performance-evidence.git "$RUNNER_TEMP/performance-evidence"
+        git -C "$RUNNER_TEMP/performance-evidence" checkout a1b21d34f04e5b3b2324f6c0300459e70380edd2
+        python3 -m pip install -r "$RUNNER_TEMP/performance-evidence/requirements-dev.txt"
+      benchmark_command: |
+        python3 benchmarks/run.py --output-dir performance-results
+        python3 benchmarks/validate.py "$RUNNER_TEMP/performance-evidence"           performance-results/tick-cost.json           performance-results/projection-bytes.json
+      artifact_paths: performance-results
+      summary_paths: performance-results/summary.md
+      upload_artifacts_on: always
+      artifact_retention_days: 14
+      artifact_name_suffix: "-full-capacity"
