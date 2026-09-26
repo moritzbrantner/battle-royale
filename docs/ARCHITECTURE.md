@@ -14,10 +14,7 @@ battle-royale-client
 authoritative commands
      |
      v
-matchmaking / placement
-        |
-        v
- game-server MatchHost
+ game-server MatchHost <---- matchmaking / placement
    |          |
  match A    match B
    |          |
