@@ -117,9 +117,7 @@ pub fn quantize_mobile_stick(
     previous: MobileMovementIntent,
 ) -> MobileMovementIntent {
     let x = sample.x.clamp(-MOBILE_STICK_SCALE, MOBILE_STICK_SCALE);
-    let screen_y = sample
-        .y
-        .clamp(-MOBILE_STICK_SCALE, MOBILE_STICK_SCALE);
+    let screen_y = sample.y.clamp(-MOBILE_STICK_SCALE, MOBILE_STICK_SCALE);
 
     let radius_squared = (x * x) + (screen_y * screen_y);
     if radius_squared <= MOBILE_STICK_DEAD_ZONE * MOBILE_STICK_DEAD_ZONE {
@@ -259,22 +257,13 @@ mod tests {
         );
         assert_eq!(cardinal, MobileMovementIntent { x: 1, z: 0 });
 
-        let diagonal = quantize_mobile_stick(
-            MobileStickSample::new(1_000, -650),
-            cardinal,
-        );
+        let diagonal = quantize_mobile_stick(MobileStickSample::new(1_000, -650), cardinal);
         assert_eq!(diagonal, MobileMovementIntent { x: 1, z: 1 });
 
-        let retained = quantize_mobile_stick(
-            MobileStickSample::new(1_000, -500),
-            diagonal,
-        );
+        let retained = quantize_mobile_stick(MobileStickSample::new(1_000, -500), diagonal);
         assert_eq!(retained, MobileMovementIntent { x: 1, z: 1 });
 
-        let exited = quantize_mobile_stick(
-            MobileStickSample::new(1_000, -400),
-            retained,
-        );
+        let exited = quantize_mobile_stick(MobileStickSample::new(1_000, -400), retained);
         assert_eq!(exited, MobileMovementIntent { x: 1, z: 0 });
     }
 
