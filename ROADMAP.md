@@ -60,7 +60,11 @@
 ## Client foundations
 
 - [ ] Reuse pinned `3d-lab` rendering rather than creating a renderer here.
-- [ ] Reuse `input-bindings`, `settings` and `asset-tooling`.
+- [x] Reuse the shared `input-bindings` action model for Battle Royale client actions.
+- [x] Add deterministic mobile thumbstick adaptation onto the existing authoritative movement command.
+- [x] Keep look/menu mobile interactions client-local until game rules require an authoritative command.
+- [ ] Compose the shared mobile overlay editor into the first rendered Battle Royale client once that client surface exists.
+- [ ] Reuse `settings` and `asset-tooling`.
 - [ ] Add interpolation over authoritative player-scoped snapshots.
 - [ ] Add optional shared-physics prediction/reconciliation only after acknowledgement contracts are explicit.
 - [ ] Keep browser/Pages demos non-authoritative.
