@@ -13,7 +13,8 @@ This first implementation slice is deliberately about authority, determinism and
 | Battle Royale wire encoding | `battle-royale-protocol` |
 | Session ticks, command sequencing, reconnects, replay/recovery and process hosting | pinned `game-server` |
 | Matchmaking/accounts/parties/rankings | external services, not match simulation |
-| Rendering/input/settings/assets | existing reusable client foundations in later slices |
+| Input action/binding semantics and mobile overlay editing | pinned `input-bindings`; Battle Royale owns only consumer-specific action mapping |
+| Rendering/settings/assets | existing reusable client foundations in later slices |
 
 The repository composes those foundations; it should not grow substitutes for them.
 
@@ -33,7 +34,17 @@ The repository composes those foundations; it should not grow substitutes for th
 - bounded multi-match host construction without duplicating host/session policy;
 - a runnable WebTransport multi-match host with read-only health/readiness/status, signal-driven draining and optional recovery bundles;
 - recovery tests that restore match state and reconnect identity through `game-server`;
+- a `battle-royale-client` adapter that exposes Battle Royale semantic actions through the shared `input-bindings` model;
+- deterministic mobile thumbstick quantization with a radial dead zone, diagonal hysteresis and redundant-command suppression;
 - exact dependency pins, committed lockfile and fail-closed workspace validation.
+
+## Mobile input boundary
+
+Mobile mode reuses the shared `input-bindings` mobile-controls workbench rather than adding a Battle Royale-specific touch resolver. The shared layer owns the editable overlay presentation; `battle-royale-client` declares the consumer actions and translates normalized thumbstick samples into the existing `MatchCommand::SetMovement` contract.
+
+The movement adapter uses integer-only quantization, a 42% radial dead zone and diagonal enter/exit hysteresis. It emits a network command only when the quantized movement direction changes, including one neutral command on release. This keeps pointer sampling rate and frontend render frequency out of authoritative match truth.
+
+`battle-royale.look` and `battle-royale.menu` are declared as local client actions. Look/camera motion is not sent as gameplay truth until a future combat or aiming command defines an authoritative need for it. The starter overlay's action buttons likewise remain unbound to server gameplay until the combat model owns fire/reload semantics.
 
 ## Running the authoritative host
 
@@ -52,6 +63,7 @@ Set `BATTLE_ROYALE_RECOVERY_DIR` to a complete hosted recovery bundle to start t
 
 - `game-server`: `769de47005cc37891011fc76ae183c18b7c5e0ae`
 - `physics-engine`: `c796ea382bdcb0276b9309e8a3cca34c8c28313b`
+- `input-bindings`: `7df9ca0122fa18d50f764ee4a2f1b100982d2be4`
 - reusable validation workflow: `728fffa13c451766d08f06e6c7d7950a4de57b3d`
 - Performance Evidence contract: `a1b21d34f04e5b3b2324f6c0300459e70380edd2`
 
