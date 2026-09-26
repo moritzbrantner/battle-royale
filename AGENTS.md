@@ -3,6 +3,7 @@
 ## Authority
 
 - `battle-royale-core` owns deterministic match rules: lifecycle phases, storm/safe-zone state, elimination semantics, spawn allocation, authoritative player intent and player-visible interest policy.
+- `battle-royale-client` owns Battle Royale-specific client adaptation only: semantic action declarations and normalized client input -> authoritative command mapping. It must not become a second source of match truth or fork reusable device/input semantics.
 - `physics-engine` owns collision and movement integration. Do not reimplement a second physics engine here.
 - `game-server` owns session identity, sequencing, tick scheduling, reconnects, replay/recovery, WebTransport and multi-match process hosting. Keep Battle Royale adapters thin.
 - Matchmaking, accounts, parties, rankings and fleet placement remain outside match simulation authority. Integrate existing services at explicit boundaries instead of importing their state into the hot loop.
@@ -28,6 +29,7 @@
 
 - External reusable foundations are pinned to exact revisions.
 - Update pins intentionally with compatibility evidence.
+- `input-bindings` owns device/binding semantics and the reusable mobile overlay editor; Battle Royale may only supply consumer actions and adapters.
 - Do not fork `game-server`, `physics-engine`, input, settings, rendering or asset foundations into this repository.
 
 ## Validation

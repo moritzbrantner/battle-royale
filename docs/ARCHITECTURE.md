@@ -5,10 +5,16 @@
 A Battle Royale match is a bounded, single-writer authoritative simulation. Horizontal scale comes from hosting more independent matches through `game-server::MatchHost`; the first design does not distribute one match's physics step across machines.
 
 ```text
-matchmaking / placement
-        |
-        v
- game-server MatchHost
+client input
+     |
+     v
+battle-royale-client
+     |
+     v
+authoritative commands
+     |
+     v
+ game-server MatchHost <---- matchmaking / placement
    |          |
  match A    match B
    |          |
@@ -22,6 +28,17 @@ matchmaking / placement
 ```
 
 ## Authority boundaries
+
+### battle-royale-client
+
+Owns consumer-specific client adaptation, not input-device semantics or match truth:
+
+- declares Battle Royale semantic actions through the pinned `input-bindings` model;
+- converts normalized mobile thumbstick samples into the existing discrete movement intent;
+- suppresses duplicate movement commands when high-frequency pointer samples quantize to the same intent;
+- treats look/camera and menu interaction as client-local until a game rule requires a corresponding authoritative command.
+
+The reusable `input-bindings` repository owns the mobile overlay editor and binding semantics. Battle Royale must not fork that UI or introduce a second touch resolver.
 
 ### battle-royale-core
 
